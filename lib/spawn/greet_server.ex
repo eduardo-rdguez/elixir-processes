@@ -6,18 +6,20 @@ defmodule Spawn.GreetServer do
   alias Spawn.Greet
 
   def start do
-    spawn(__MODULE__, :handle_message, [])
+    spawn(__MODULE__, :handle_message, [self()])
   end
 
-  def handle_message do
+  def handle_message(parent) do
     receive do
       {:hi, name} ->
-        Greet.hi(name)
+        greet = Greet.hi(name)
+        send(parent, greet)
 
       {:hello, name} ->
-        Greet.hello(name)
+        greet = Greet.hello(name)
+        send(parent, greet)
     end
 
-    handle_message()
+    handle_message(parent)
   end
 end
